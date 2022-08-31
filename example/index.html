@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>SimpleWS Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div>
+      <h1>SimpleWS Example</h1>
+      <p>This is a simple example of a web service using SimpleWS.</p>
+
+      <p>Status of connection: <i id="status"></i></p>
+      <p>Ping: <i id="ping"></i></p>
+
+      <button onclick="makePing()">Make ping</button>
+    </div>
+  </body>
+
+  <script>
+    var ws = new WebSocket("ws://localhost:8080/simple.ws");
+    ws.onopen = function (e) {
+      document.getElementById("status").innerHTML = "Connected";
+    };
+    ws.onclose = function (e) {
+      document.getElementById("status").innerHTML = "Disconnected";
+    };
+    ws.onmessage = function (e) {
+      console.log(e.data);
+    };
+    ws.onerror = function (e) {
+      console.log(e.data);
+    };
+
+    function makePing() {
+      emit(ws, "ping", { now: new Date().getTime() });
+    }
+
+    function emit(ws, event, data) {
+      let object = {
+        type: 2,
+        event: event,
+        data: data,
+      };
+
+      ws.send(JSON.stringify(object));
+    }
+  </script>
+</html>
