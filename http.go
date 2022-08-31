@@ -9,11 +9,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-
-
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
+
 	var upgrader = websocket.Upgrader{
+		CheckOrigin:     *s.opts.CheckOrigin,
 		ReadBufferSize:  *s.opts.ReadBufferSize,
 		WriteBufferSize: *s.opts.WriteBufferSize,
 	}
@@ -45,32 +44,29 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		switch mt {
 
-			case websocket.TextMessage:
+		case websocket.TextMessage:
 			switch model.Type {
-	
+
 			case parser.Event:
 				s.call(handleEvent, *model.Event, &customer, model.Data)
 				break
-				
-				case parser.Disconnect:
-					s.call(handleDisconnect, )
-					break
 
-				case parser.Error:
-					s.call(handleError, )
-					break
-				}
+			case parser.Disconnect:
+				s.call(handleDisconnect)
+				break
+
+			case parser.Error:
+				s.call(handleError)
+				break
+			}
 
 		case websocket.CloseMessage:
 			s.call(handleDisconnect, message)
 
-
-		default: 	
+		default:
 			s.call(handleDisconnect, "Unknown message close")
-			
+
 		}
 	}
 
-	
 }
-
